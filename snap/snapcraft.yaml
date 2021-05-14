@@ -1,6 +1,6 @@
 name: automount
-base: core18
-version: '0.1'
+base: core20
+version: '0.2'
 summary: Automatically mount plugged in USB devices on Ubuntu Core
 description: |
   This snap adds a daemon that waits for USB plug events of block devices
@@ -15,7 +15,7 @@ confinement: strict
 
 apps:
   udisksd:
-    command: libexec/udisks2/udisksd
+    command: usr/libexec/udisks2/udisksd
     daemon: simple
     slots: [ service ]
     plugs:
@@ -61,10 +61,10 @@ parts:
     plugin: autotools
     override-pull: |
       snapcraftctl pull
-      git apply -v ../../../udisksd.patch
-    configflags:
+      git apply -v $SNAPCRAFT_PROJECT_DIR/udisksd.patch
+    autotools-configure-parameters:
+        - --prefix=/usr
         - --enable-fhs-media
-    install-via: destdir
     build-packages:
         - pkg-config
         - xsltproc
@@ -81,6 +81,7 @@ parts:
         - libatasmart-dev
         - libsystemd-dev
         - libmount-dev
+        - gnome-common
     stage-packages:
         - libacl1
         - libatasmart4
@@ -95,8 +96,8 @@ parts:
       licenses:
           - usr/share/doc/*/*copyright*
       binaries:
-          - bin/udisksctl
-          - libexec/udisks2/udisksd
+          - usr/bin/udisksctl
+          - usr/libexec/udisks2/udisksd
     prime:
         - $binaries
         - $licenses
@@ -104,6 +105,7 @@ parts:
         - -lib/pkgconfig
         - -lib/systemd
         - -lib/cgmanager
-        - libexec
+        - usr/libexec
         - sbin
+        - usr/lib/*.so*
         - usr/lib/*/*.so*
